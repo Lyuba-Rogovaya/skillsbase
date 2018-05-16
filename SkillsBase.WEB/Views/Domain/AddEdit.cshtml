@@ -1,0 +1,156 @@
+﻿@model SkillsBase.WEB.Models.Domain.DomainViewModel
+@{ 
+    string displaySkills = Model.Skills?.Count() > 0 ? "block" : "none";
+    string header = Model?.Name == null ? "New Knowledge Domain" : Model.Name;
+}
+
+@using (Html.BeginForm("save", "domain", FormMethod.Post, new { name="Domain"}))
+{
+    @Html.AntiForgeryToken()
+    
+<div class="form-horizontal">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+        <p class="text"></p>
+        <button type="button" class="close" onclick="$(this).parent().hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <h4>@header</h4>
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+    <div class="form-group">
+        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label" })
+        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label" })
+        @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+    </div>
+    <h4>Skills</h4>
+    <ul class="skillList list-unstyled" style="list-style-type: decimal; margin-left: 1rem; display: @displaySkills;">
+        @if (Model.Skills?.Count() > 0)
+        {
+            foreach (var s in Model.Skills)
+            {
+                <li class="skill-item" data-skillid="@s.Id" data-name="@s.Name">@s.Name
+                    <span class="badge badge-danger ml-5 remove" style="cursor: pointer;" data-id="@s.Id">Remove</span>
+                </li>
+            }
+        }
+    </ul>
+
+        <div class="form-group">
+            <div class="input-group">
+                <input type="text" name="Skill" value="" class="form-control" placeholder="Add skill..." />
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-sm btn-primary" id="AddSkill">Add</button>
+                </div>
+            </div>
+            <div class="text-danger" id="SkillError" style="display: none;"><span>Skill name is required.</span></div>
+        </div>
+        <div class="form-group" style="position: absolute; bottom: 50px;">
+            @Html.ActionLink("Back to list", "Index", null, new { @class = "btn  btn-outline-secondary" })
+            <input type="submit" value="Save" class="btn btn-success" id="formSubmit" />
+        </div>
+</div>
+ }
+
+@section Scripts {
+@Scripts.Render("~/bundles/jqueryval")
+<script>
+    $(document).ready(function (e) {
+        $('#AddSkill').click(function (e) {
+            var name = $('input[name="Skill"]').val();
+            if (name.length == 0 || name.replace(/\s/g, '').length == 0) {
+                $('#SkillError').show();
+                return;
+            }
+            if ($('#Id').val() == 0) {
+                addSkillHtml(0, name);
+                return;
+            } else {
+                $.ajax({ url: '@Url.Action("AddSkill", "Domain")', method: "POST", data: JSON.stringify({ Name: name, DomainId: $('#Id').val() }), contentType: 'application/json'})
+                    .done(function (data) {
+                         if (data.Error && data.Error.length > 0) {
+                            handleServerError(data.Error);
+                         } else {
+                             addSkillHtml(data.SkillId, name);
+                         }
+                    })
+                    .fail(function (e) {
+                        handleServerError('Server error occured. Please, contact your admin.');
+                    });
+            }
+
+        });
+        function addSkillHtml(SkillId, name) {
+            var skillhtml =
+                '<li class="skill-item" data-skillid="'+SkillId+'" data-name="' + name + '">' + name + '<span class="badge badge-danger ml-5 remove" style="cursor: pointer;" data-id="' + SkillId + '">Remove</span></li>';
+
+            $('#SkillError').hide();
+            $('.skillList').show().append(skillhtml);
+            $('input[name="Skill"]').val("");
+            $('[data-id="' + SkillId + '"]').click(function (e) {
+                remove(e);
+            });
+        }
+            $('form[name="Domain"]').submit(function (e) {
+                e.preventDefault();
+                var domainName = $('#Name').val();
+                var domainId = $('#Id').val();
+                var domainDesc = $('#Description').val();
+                var $skills = $('.skill-item');
+                var skills = [];
+                for (var i = 0; i < $skills.length; i++) {
+                    skills[i] = { Name : $($skills[i]).data('name'), Id : $($skills[i]).data('skillid')};
+                }
+
+                var model = { Name: domainName, Id: domainId, Description: domainDesc, Skills: skills };
+                $.ajax({ url: '@Url.Action("Save", "Domain")', method: "POST", data: JSON.stringify(model), contentType: 'application/json' })
+                    .done(function (data) {
+                        if (data.Error && data.Error.length > 0) {
+                            handleServerError(data.Error);
+                        } else {
+                            window.location.href = "@Url.Action("index", "domain")";
+                        }
+                    })
+                    .fail(function (e) {
+                        if (e.status >= 500) {
+                            handleServerError('Server error occured. Please, contact your admin.');
+                        } else {
+                            handleServerError(e.statusText);
+                        }
+                    });
+            });
+            $('.remove').click(function (e) {
+                remove(e);
+            });
+
+            function remove(e) {
+                var element = e.target;
+                if ($(element).data('id') == 0) {
+                    $(element).parent().remove();
+                    return;
+                }
+                $.ajax({ url: '@Url.Action("RemoveSkill", "Domain")', method: "POST", data: JSON.stringify({ skillId: $(e.target).data('id') }), contentType: 'application/json' })
+                    .done(function (data) {
+                        if (data.Error && data.Error.length > 0) {
+                            handleServerError(data.Error);
+                        } else {
+                            $(element).parent().remove();
+                        }
+                    })
+                    .fail(function (e) {
+                        handleServerError('Server error occured. Please, contact your admin.');
+                    });
+            }
+
+            function handleServerError(message) {
+                $('.alert .text span').remove();
+                $('.alert .text').append('<span>' + message + '</span>').parent().show();
+            }
+        });
+</script>
+}

@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h4 class="text-muted">Statistics</h4>
+<hr />
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+    <p class="text"></p>
+    <button type="button" class="close" onclick="$(this).parent().hide()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="row">
+    <h5 class="col-md-12">You:</h5>
+    <div class="col-md-6">
+        <h5 class="text-center">Domains</h5>
+        <div id="domains"></div>
+    </div>
+    <div class="col-md-6">
+        <h5 class="text-center">Skills</h5>
+        <div id="skills"></div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <h5 class="col-md-12">Other users (excluding you):</h5>
+    <div class="col-md-6">
+        <h5 class="text-center">Domains</h5>
+        <div id="otherUserDomains"></div>
+    </div>
+    <div class="col-md-6">
+        <h5 class="text-center">Skills</h5>
+        <div id="otherUserSkills"></div>
+    </div>
+</div>
+@Scripts.Render("~/bundles/charts")
+@section scripts{
+    <script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("GetUserTotals", "Reports")',
+            method: "POST",
+            contentType: 'application/json'
+        })
+        .done(function (data) {
+            if (data.Error && data.Error.length > 0) {
+                handleServerError(data.Error);
+            } else {
+                var skills = [];
+                var domains = [];
+                var otherSkills = [];
+                var otherDomains = [];
+                for (var i = 0; i < data.CurrentUserSkillInfo.length; i++) {
+                    skills[i] = [];
+                    skills[i].push(data.CurrentUserSkillInfo[i].SkillName);
+                    skills[i].push(data.CurrentUserSkillInfo[i].SkillLevel);
+                }
+
+                for (var i = 0; i < data.CurrentUserDomainInfo.length; i++) {
+                    domains[i] = [];
+                    domains[i].push(data.CurrentUserDomainInfo[i].DomainName);
+                    domains[i].push(data.CurrentUserDomainInfo[i].SkillLevelSum);
+                }
+
+                for (var i = 0; i < data.OtherUserSkillInfo.length; i++) {
+                    otherSkills[i] = [];
+                    otherSkills[i].push(data.OtherUserSkillInfo[i].SkillName);
+                    otherSkills[i].push(data.OtherUserSkillInfo[i].SkillLevel);
+                }
+
+                for (var i = 0; i < data.OtherUserDomainInfo.length; i++) {
+                    otherDomains[i] = [];
+                    otherDomains[i].push(data.OtherUserDomainInfo[i].DomainName);
+                    otherDomains[i].push(data.OtherUserDomainInfo[i].SkillLevelSum);
+                }
+                var chart = c3.generate({ 
+                    bindto: '#skills',
+                    data: {
+                        columns: skills,
+                        type: 'pie'
+                    }
+                });
+                var chart2 = c3.generate({
+                    bindto: '#domains',
+                    data: {
+                        columns: domains,
+                        type: 'pie'
+                    }
+                });
+                var chart3 = c3.generate({
+                    bindto: '#otherUserDomains',
+                    data: {
+                        columns: otherDomains,
+                        type: 'pie'
+                    }
+                });
+                var chart4 = c3.generate({
+                    bindto: '#otherUserSkills',
+                    data: {
+                        columns: otherSkills,
+                        type: 'pie'
+                    }
+                });
+            }
+        })
+        .fail(function (e) {
+            handleError('Server error occured. Please, contact your admin.');
+            });
+
+        function handleError(message) {
+            $('.alert .text span').remove();
+            $('.alert .text').append('<span>' + message + '</span>').parent().show();
+        }
+    });
+    </script>
+}
+

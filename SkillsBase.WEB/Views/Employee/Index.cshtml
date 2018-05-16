@@ -1,0 +1,62 @@
+﻿<h3 class="text-muted">
+    <span>Employees</span>
+</h3>
+
+<table class="table" id="employees">
+    <thead>
+        <tr>
+            <th>User name</th>
+            <th>Full name</th>
+            <th>Profession</th>
+            <th>Age</th>
+            <th>Email</th>
+            <th>Phone number</th>
+            <th style="display: none;">Action</th>
+        </tr>
+    </thead>
+</table>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#employees').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: "@Url.Action("DataGrid", "Employee")",
+                    type: 'POST'
+                },
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Search..."
+                },
+                "columnDefs": [],
+                "columns": [
+                    { "data": "UserName", "defaultContent": "<i>Not set</i>",  "sortable": false},
+                    { "data": "FullName", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "Profession", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "Age", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "Email", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "PhoneNumber", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "Id", "searchable": false, "sortable": false }
+                ],
+                "order": [],
+                "columnDefs": [
+                    {
+                        "targets": [6],
+                        "visible": false
+                    }
+               ],
+                "initComplete": function (settings, json) {
+                }, 
+                "paging": true
+            });
+            //table.on("draw.dt", function () {
+            //    $(".dataTable tbody tr td").css({ width: "40%" });
+            //    $(".dataTable tbody tr td + td").css({ width: "40%" });
+            //    $(".dataTable tbody tr td + td + td").css({ width: "20%" });
+            //});
+        });
+    </script>
+}
+

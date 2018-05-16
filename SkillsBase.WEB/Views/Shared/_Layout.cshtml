@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Skills Base</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-md">
+        @Html.ActionLink("Skills Base", "Index", "Home", new { }, new { @class = "navbar-brand col-sm-3 col-md-2 mr-0" })
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                
+            </ul>
+            <ul class="navbar-nav">
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">@Html.ActionLink("Login", "Login", "Account", new { }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Register", "Register", "Account", new { }, new { @class = "nav-link" })</li>
+                }
+                else
+                {
+                    <li class="nav-item">@Html.ActionLink($"Logout, {User.Identity.Name}", "Logout", "Account", new { }, new { @class = "nav-link" })</li>
+                }
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <main role="main" class="container-fluid" style="margin-top: -70px; height: 100%;">
+        <div class="row"  style="height: 100%;">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Personal</span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/account/profile">
+                                <span data-feather="file"></span>
+                                Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/account/skills">
+                                <span data-feather="file"></span>
+                                Skills
+                            </a>
+                        </li>
+                    </ul>
+                    @if (User.IsInRole("admin"))
+                    {
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                            <span>Administration</span>
+                            <a class="d-flex align-items-center text-muted" href="#">
+                                <span data-feather="plus-circle"></span>
+                            </a>
+                        </h6>
+                        <ul class="nav flex-column mb-2">
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/roles">
+                                    <span data-feather="file"></span>
+                                    Roles
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/users">
+                                    <span data-feather="file"></span>
+                                    Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/domains">
+                                    <span data-feather="users"></span>
+                                    Domains
+                                </a>
+                            </li>
+                        </ul>
+                    }
+                    @if (User.IsInRole("admin") || User.IsInRole("hr"))
+                    {
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                            <span>Search</span>
+                            <a class="d-flex align-items-center text-muted" href="#">
+                                <span data-feather="plus-circle"></span>
+                            </a>
+                        </h6>
+                        <ul class="nav flex-column mb-2">
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/employees">
+                                    <span data-feather="file-text"></span>
+                                    Employees
+                                </a>
+                                <a class="nav-link" href="~/employees/bank">
+                                    <span data-feather="file-text"></span>
+                                    Skills bank
+                                </a>
+                            </li>
+                        </ul>
+                    }
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                            <span>Reporting</span>
+                            <a class="d-flex align-items-center text-muted" href="#">
+                                <span data-feather="plus-circle"></span>
+                            </a>
+                        </h6>
+                    
+                        <ul class="nav flex-column mb-2">
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/reports/statistics">
+                                    <span data-feather="file-text"></span>
+                                    Statistics
+                                </a>
+                            </li>
+                        </ul>
+                </div>
+            </nav>
+            <div class="col-md-10 offset-md-2" style="height: 100%;">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+
+    @*<footer class="footer">
+            <div class="container">
+                <span class="text-muted">Place sticky footer content here.</span>
+            </div>
+        </footer>*@
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/datatables")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

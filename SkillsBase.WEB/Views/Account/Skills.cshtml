@@ -1,0 +1,68 @@
+﻿@using SkillsBase.WEB.Models.Domain;
+@using SkillsBase.BLL;
+@model IEnumerable<SkillsBase.BLL.DTO.EmployeeSkillDTO>
+
+<h4 class="text-muted">Skills</h4>
+<hr />
+
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+    <p class="text"></p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@if (ViewBag.Domains != null && ((IEnumerable<DomainViewModel>)ViewBag.Domains).Count() > 0)
+{
+    <div class="card-columns" style="margin-left: 10px;">
+        @foreach (DomainViewModel d in (IEnumerable<DomainViewModel>)ViewBag.Domains)
+        {
+            <div class="card border-light">
+                <ul class="list-unstyled list-group" data-domainid="@d.Id">
+                    <li class="list-group-item active">@d.Name</li>
+                    @foreach (var i in Model)
+                    {
+                        if (i.DomainId == d.Id)
+                        {
+                            <li class="list-group-item" data-skillid="@i.SkillId">
+                                <span style="">@i.SkillName</span>
+                                <span>@Html.EnumDropDownListFor(m => i.Level, new { @class = "form-control SkillLevel", style = "display: inline-block;" })</span>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        <p>Currently there are no skills.</p>
+    </div>
+}
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.SkillLevel').change(function (e) {
+                var el = $(this);
+                var model = {
+                    DomainId : el.closest('ul').data('domainid'),
+                    SkillId : el.closest('li').data('skillid'),
+                    Level : $(e.target).val()
+                };
+                $.ajax({
+                    url: '@Url.Action("UpdateEmployeeSkill", "Employee")',
+                    type: "POST",
+                    data: model
+                }).fail(function (e) {
+                    handleServerError(e);
+                });
+            });
+            function handleServerError(e) {
+                $('.alert .text span').remove();
+                $('.alert .text').append('<span>Server error occured, please try later.</span>').parent().show();
+            }
+        });
+    </script>
+}
+

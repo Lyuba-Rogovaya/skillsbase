@@ -1,0 +1,76 @@
+﻿@model SkillsBase.WEB.Models.Roles.RoleViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+@using (Html.BeginForm("create", "roles", FormMethod.Post, new { name = "CreateRole" }))
+{
+    <div class="form-horizontal">
+        <h4>New role</h4>
+        <hr />
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+            <p class="text"></p>
+            <button type="button" onclick="$('.alert-danger').hide()" class="close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="display: none;">
+            <p class="text"></p>
+            <button type="button" onclick="$('.alert-success').hide()" class="close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+}
+
+<div class="col-md-offset-2 col-md-10">
+    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn  btn-outline-secondary" })
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+    $(document).ready(function () {
+        var form = $('form[name="CreateRole"]').submit(function (e) {
+            e.preventDefault();
+            var id = $('#Id').val();
+            var Name = $('#Name').val();
+            var model = JSON.stringify({ Id: id, Name: Name });
+            $.ajax({ url: '@Url.Action("Create", "Roles")', data: model, contentType: 'application/json', method: "POST", })
+                .done(function (e) {
+                    handleSuccess(e);
+                })
+                .fail(function (e) {
+                    handleServerError(e);
+                });
+
+            function handleServerError(e) {
+                if (e.status > 500) {
+                    $('.alert-danger .text span').remove();
+                    $('.alert-danger .text').append('<span>Server error occured, please try later.</span>').parent().show();
+                }
+
+            }
+            function handleSuccess(e) {
+                $('.alert-success .text span').remove();
+                $('.alert-success .text').append('<span>Changes were successfully saved.</span>').parent().show();
+            }
+        });
+    });
+    </script>
+}

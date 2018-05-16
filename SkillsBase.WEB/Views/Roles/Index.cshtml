@@ -1,0 +1,56 @@
+﻿<h3 class="text-muted">
+    <span>Roles</span>
+</h3>
+
+<p class="breadcrumb">
+    @Html.ActionLink("Create New", "create", "roles", null, new { @class = "btn btn-primary btn-sm" })
+</p>
+
+<table class="table" id="roles">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#roles').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: "@Url.Action("DataGrid", "Roles")",
+                    type: 'POST'
+                },
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Search..."
+                },
+                "columnDefs": [],
+                "columns": [
+                    { "data": "Name", "defaultContent": "<i>Not set</i>",  "sortable": false},
+                    { "data": "Id", "searchable": false, "sortable": false }
+                ],
+                "order": [],
+                "columnDefs": [
+                    {
+                        "render": function (data, type, row) {
+                            var strEdit = '<a href="/roles/details/' + data + '">View</a> | '
+                            var strDelete = '<a href="/roles/delete/' + data + '">Delete</a>'
+
+                            return strEdit + strDelete;
+                        },
+                        "targets": 1
+                    }
+               ],
+                "initComplete": function (settings, json) {
+                },
+                "paging": true
+            });
+        });
+    </script>
+}
+

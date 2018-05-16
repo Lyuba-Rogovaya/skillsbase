@@ -1,0 +1,55 @@
+﻿<h3 class="text-muted">
+    <span>Users</span>
+</h3>
+
+<table class="table" id="users">
+    <thead>
+        <tr>
+            <th>User name</th>
+            <th>Email</th>
+            <th>Phone number</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#users').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: "@Url.Action("DataGrid", "User")",
+                    type: 'POST'
+                },
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Search..."
+                },
+                "columnDefs": [],
+                "columns": [
+                    { "data": "UserName", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "Email", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "PhoneNumber", "defaultContent": "<i>Not set</i>", "sortable": false },
+                    { "data": "Id", "searchable": false, "sortable": false }
+                ],
+                "order": [],
+                "columnDefs": [
+                    {
+                        "render": function (data, type, row) {
+                            var str = '<a href="/user/' + data +'/roles/">Manage roles</a>'
+
+                            return str;
+                        },
+                        "targets": 3
+                    }
+               ],
+                "initComplete": function (settings, json) {
+                },
+                "paging": true
+            });
+        });
+    </script>
+}
+

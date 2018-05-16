@@ -1,0 +1,54 @@
+﻿@model SkillsBase.WEB.Models.Roles.RoleViewModel
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+    <p class="text"></p>
+    <button type="button" class="close" onclick="$(this).parent().hide()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<h5>Are you sure you want to delete <strong> @Model.Name</strong>?</h5>
+<div>
+
+    @using (Html.BeginForm("DeleteConfirm", "Roles", FormMethod.Post, new { name = "RolesDelete" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.Name)
+        <div class="form-actions no-color">
+            <br />
+            <input type="submit" value="Delete" class="btn btn-outline-danger" />
+        </div>
+        <div class="form-group" style="position: absolute; bottom: 50px;">
+            @Html.ActionLink("Back to list", "Index", null, new { @class = "btn  btn-outline-secondary" })
+        </div>
+    }
+</div>
+@section Scripts {
+<script>
+        $(document).ready(function () {
+            $('form[name="RolesDelete"]').submit(function (e) {
+                e.preventDefault();
+                var model = { Id : $('#Id').val() };
+                $.ajax({
+                    url: '@Url.Action("DeleteConfirm", "Roles")',
+                    data: model,
+                    method: 'POST'
+                }).done(function (data) {
+                    if (data.Error && data.Error.length > 0) {
+                        handleServerError(data.Error);
+                    } else {
+                        window.location.href = "@Url.Action("index", "roles")";
+                    }
+                })
+                    .fail(function (e) {
+                        handleServerError('Server error occured. Please, contact your admin.');
+                });
+
+                function handleServerError(message) {
+                    $('.alert .text span').remove();
+                    $('.alert .text').append('<span>' + message +'</span>').parent().show();
+                }
+            });
+        });
+</script>
+}

@@ -1,0 +1,164 @@
+﻿@using SkillsBase.WEB.Models.Employees;
+@using SkillsBase.BLL;
+@model IEnumerable<SkillsBase.WEB.Models.Employees.EmployeeSkillViewModel>
+
+@{
+    ViewBag.Title = "Skills Bank";
+    var levels = Enum.GetValues(typeof(SkillLevel))
+                     .Cast<SkillLevel>()
+                     .Select(e => new SelectListItem
+                     {
+                         Value = ((int)e).ToString(),
+                         Text = e.ToString()
+                     });
+}
+
+<h4 class="text-muted">Skills Bank</h4>
+
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+    <p class="text"></p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="breadcrumb" style="flex-direction: column;">
+    <div style="display: flex">
+        <span class="text-muted">Domains&nbsp;</span>
+        <select name="Domains" class="form-control">
+            <option value="" disabled selected>Select domain...</option>
+            @foreach (SelectListItem d in (IEnumerable<SelectListItem>)ViewBag?.Domains)
+            {
+                <option value="@d.Value">@d.Text</option>
+            }
+        </select>
+        &nbsp;
+        <span class="text-muted">Skills&nbsp;</span>
+        <select name="Skills" class="form-control">
+            <option value="" disabled selected>Select skill...</option>
+            @foreach (SelectListItem s in (IEnumerable<SelectListItem>)ViewBag?.Skills)
+            {
+                <option value="@s.Value">@s.Text</option>
+            }
+        </select>
+        &nbsp;
+        <span class="text-muted">Level &nbsp;</span>
+        <select name="Levels" class="form-control">
+            <option value="" disabled selected>Select level (optionally)...</option>
+            <option value="" ></option>
+            @foreach (SelectListItem s in levels)
+            {
+                <option value="@s.Value">@s.Text</option>
+            }
+        </select>
+    </div>
+</div>
+
+<table class="table" id="employeeBank">
+    <thead>
+        <tr>
+            <th>User name</th>
+            <th>Full name</th>
+            <th>Profession</th>
+            <th>Age</th>
+            <th>Email</th>
+            <th>Phone number</th>
+            <th>Skill level</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (EmployeeSkillViewModel emp in Model)
+        {
+            <tr>
+                <td>@emp.Employee.UserName</td>
+                <td>@emp.Employee.FullName</td>
+                <td>@emp.Employee.Profession</td>
+                <td>@emp.Employee.Age</td>
+                <td>@emp.Employee.Email</td>
+                <td>@emp.Employee.PhoneNumber</td>
+                <td>@emp.Level.ToString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts {
+<script>
+    $(document).ready(function () {
+        var domainId;
+        var skillId;
+            $('select[name="Domains"]').change(function (e) {
+                domainId = $(e.target).val();
+                $.ajax({
+                    url: '@Url.Action("GetSkillsByDomainId", "Employee")',
+                    type: "POST",
+                    data: { domainId : domainId }
+                })
+                .done(function (data) {
+                    if (data.Error && data.Error.length > 0) {
+                        handleServerError(data.Error);
+                    } else {
+                        var skillsHtml = '<option value="" disabled selected>Select skill...</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            skillsHtml += '<option value="' + data[i].Value + '">' + data[i].Text + '</option>';
+                        }
+                        $('select[name="Skills"]').html(skillsHtml);
+
+                    }
+                })
+                .fail(function (e) {
+                    handleServerError(e);
+                    });
+            });
+            $('select[name="Skills"]').change(function (e) {
+                skillId = $(e.target).val();
+                if (!domainId) {
+                    handleServerError(null, 'Please, select domain');
+                    return;
+                }
+                findEmployees(skillId);
+            });
+            $('select[name="Levels"]').change(function (e) {
+                var level = $(e.target).val();
+                if (!domainId || !skillId) {
+                    handleServerError(null, 'Make sure to select domain and skill.');
+                    return;
+                }
+                findEmployees(skillId, level);
+            });
+            function findEmployees(skill, level) {
+                var postData = { domainId: domainId, skillId: skillId };
+                if (level) {
+                    postData = { domainId: domainId, skillId: skillId , level : level};
+                }
+                $.ajax({
+                     url: '@Url.Action("GetEmployeesBySkillId", "Employee")',
+                     type: "POST",
+                     data: postData
+                })
+                .done(function (data) {
+                    if (data.Error && data.Error.length > 0) {
+                        handleServerError(null, data.Error);
+                    } else {
+                         var employeesHtml = '';
+                         for (var i = 0; i < data.length; i++) {
+                             employeesHtml += '<tr><td>' + data[i].Employee.UserName + '</td><td>' + data[i].Employee.FullName + '</td><td>' + data[i].Employee.Profession + '</td><td>' + data[i].Employee.Age + '</td><td>' + data[i].Employee.Email + '</td><td>' + data[i].Employee.PhoneNumber + '</td><td>' + data[i].Level + '</td></tr>';
+                         }
+                         $('#employeeBank tbody').html(employeesHtml);
+                    }
+                })
+                .fail(function (e) {
+                      handleServerError(e);
+                });
+            };
+            function handleServerError(e, message) {
+                $('.alert .text span').remove();
+                if (message) {
+                    $('.alert .text').append('<span>' + message + '</span>').parent().show();
+                } else {
+                    $('.alert .text').append('<span>Server error occured, please try later.</span>').parent().show();
+                }
+            }
+        });
+</script>
+}

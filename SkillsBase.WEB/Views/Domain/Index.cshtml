@@ -1,0 +1,63 @@
+﻿<h3 class="text-muted">
+    <span>Domains</span>
+</h3>
+
+<p class="breadcrumb">
+    @Html.ActionLink("Create New", "create", "domain", null, new { @class = "btn btn-primary btn-sm" })
+</p>
+
+<table class="table" id="domains">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#domains').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: "@Url.Action("DataGrid", "Domain")",
+                    type: 'POST'
+                },
+                "order": [],
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Search..."
+                },
+               "columns": [
+                    { "data": "Name", "sortable": false  },
+                   { "data": "Description", "defaultContent": "<i>Not set</i>", "sortable": false },
+                   { "data": "Id", "searchable": false, "sortable": false }
+                ],
+               "columnDefs": [
+                   {
+                       "render": function (data, type, row) {
+                           var strEdit = '<a href="/domain/edit/' + data + '">Edit</a> | '
+                           var strDelete = '<a href="/domain/delete/' + data + '">Delete</a>'
+
+                           return strEdit + strDelete;
+                       },
+                       "targets": 2
+                   }
+               ],
+                "initComplete": function (settings, json) {
+
+                }, 
+                "paging": true
+            });
+            table.on("draw.dt", function () {
+                $(".dataTable tbody tr td").css({ width: "40%" });
+                $(".dataTable tbody tr td + td").css({ width: "40%" });
+                $(".dataTable tbody tr td + td + td").css({ width: "20%" });
+            });
+        });
+    </script>
+}
+

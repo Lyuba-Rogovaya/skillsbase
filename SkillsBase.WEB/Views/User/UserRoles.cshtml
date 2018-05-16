@@ -1,0 +1,112 @@
+﻿@using SkillsBase.WEB.Models.Roles;
+@model IEnumerable<SkillsBase.WEB.Models.Roles.RoleViewModel>
+
+@{
+    ViewBag.Title = "User roles";
+}
+
+<h4 class="text-muted">Roles of user @ViewBag.UserName</h4>
+<hr />
+
+<div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+    <p class="text"></p>
+    <button type="button" onclick="$('.alert-danger').hide()" class="close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<ul class="roleList list-group col-md-3">
+    @if (Model.Count() > 0)
+    {
+        foreach (RoleViewModel r in Model)
+        {
+            <li class="role-item list-group-item" data-roleid="@r.Id" data-name="@r.Name">
+                @r.Name
+                <span class="badge badge-danger ml-5 remove" style="cursor: pointer;position: absolute; right: 1rem;" data-name="@r.Name">Remove</span>
+            </li>
+        }
+    }
+</ul>
+<br />
+<p><i>Add user to role: </i></p>
+
+<select name="RoleList" class="form-control">
+    <option value="" disabled selected>Select role...</option>
+    @foreach (RoleViewModel r in (IEnumerable<RoleViewModel>)ViewBag?.AllRoles)
+    {
+        <option value="@r.Id">@r.Name</option>
+    }
+</select>
+
+@section scripts{
+<script>
+        $(document).ready(function () {
+
+            $('select[name="RoleList"]').change(function (e) {
+
+                if ($(e.target).val() == null) return;
+
+                var roleName = $('select[name="RoleList"] option:selected').text();
+                var roleId = $(e.target).val();
+                var $currentRoles = $('.role-item');
+                var currentRoles = [];
+
+                for (var i = 0; i < $currentRoles.length; i++) {
+                    if ($($currentRoles[i]).data('name') == roleName) {
+                        handleError(null, 'Cannot add user to the role twice.');
+                        return;
+                    }
+                }
+                $.ajax({ url: '@Url.Action("AddUserToRole", "User")', data: JSON.stringify({ userId: '@ViewBag.UserId', roleName: roleName }), contentType: 'application/json', method: "POST", })
+                    .done(function (e) {
+                        if (e.Error && e.Error.length > 0) {
+                            handleError(null, e.Error);
+                            return;
+                        }
+                        var roleHtml = '<li class="role-item new list-group-item" data-roleid="' + roleId + '" data-name="' + roleName + '">' + roleName + ' <span class="badge badge-danger ml-5 remove" style="cursor: pointer;position: absolute; right: 1rem;" data-name="' + roleName + '">Remove</span></li>';
+                        $('.roleList').append(roleHtml);
+                        $('.new .remove').click(function (e) {
+                            removeRole(e, this);
+                        });
+                })
+                .fail(function (e) {
+                    handleError(e);
+                });
+            }).click(function () {
+                if ($('select[name="RoleList"] option').length == 1) {
+                    $('select[name="RoleList"]').change();
+                }
+                });
+            $('.remove').click(function (e) {
+                removeRole(e, this);
+            });
+
+            function removeRole(e, self) {
+                var roleName = $(e.target).data('name');
+                $.ajax({ url: '@Url.Action("RemoveUserFromRole", "User")', data: JSON.stringify({ userId: '@ViewBag.UserId', roleName: roleName }), contentType: 'application/json', method: "POST", })
+                    .done(function (e) {
+                        if (e.Error && e.Error.length > 0) {
+                            handleError(null, e.Error);
+                            return;
+                        }
+                        $(self).parent().remove();
+                })
+                .fail(function (e) {
+                    handleError(e);
+                });
+            }
+
+            function handleError(e, message) {
+                if (e) {
+                    $('.alert-danger .text span').remove();
+                    $('.alert-danger .text').append('<span>Server error occured, please try later.</span>').parent().show();
+                } else if (message) {
+                    $('.alert-danger .text span').remove();
+                    $('.alert-danger .text').append('<span>' + message +'</span>').parent().show();
+                }
+
+            }
+        });
+
+</script>
+}

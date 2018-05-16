@@ -1,0 +1,43 @@
+﻿@using SkillsBase.BLL.DTO;
+@model SkillsBase.BLL.Models.Role
+
+@{
+    ViewBag.Title = "View";
+}
+<h4 class="text-muted">Details of role @Model.Name</h4>
+<hr />
+<div style="margin-bottom: 1rem;">
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name):  @Html.DisplayFor(model => model.Name)
+        </dt>
+
+    </dl>
+    <p class="text-muted">Users in this role:</p>
+        @if(Model.Users.Count() > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User name</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (UserDTO u in Model.Users)
+                {
+                    <tr>
+                        <td>@u.UserName</td>
+                        <td>@u.Email</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        } else {
+            <i>There are no associated users.</i>
+        }
+
+</div>
+<div>
+    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn  btn-outline-secondary" })
+</div>
