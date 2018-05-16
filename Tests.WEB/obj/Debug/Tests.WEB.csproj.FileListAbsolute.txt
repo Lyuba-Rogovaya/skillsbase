@@ -1,9 +1,0 @@
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\bin\Debug\Tests.WEB.dll
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\bin\Debug\Tests.WEB.pdb
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\bin\Debug\nunit.framework.dll
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\bin\Debug\nunit.framework.pdb
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\bin\Debug\nunit.framework.xml
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\obj\Debug\Tests.WEB.csprojResolveAssemblyReference.cache
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\obj\Debug\Tests.WEB.csproj.CoreCompileInputs.cache
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\obj\Debug\Tests.WEB.dll
-C:\Users\Rogova\Desktop\Epam_Net\Project20180501\SkillsBase\Tests.WEB\obj\Debug\Tests.WEB.pdb
