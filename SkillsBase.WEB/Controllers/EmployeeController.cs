@@ -41,27 +41,20 @@ namespace SkillsBase.WEB.Controllers
         [HttpPost]
         public async Task<ActionResult> UpdateEmployeeSkill(EmployeeSkillDTO model)
         {
-            try
+            if (employeeService is IEmployeeService serv)
             {
-                if (employeeService is IEmployeeService serv)
+                try
                 {
-                    try
-                    {
-                        await serv.SaveSkillLevel(model, User.Identity.GetUserId());
-                        return new HttpStatusCodeResult(HttpStatusCode.OK);
-                    }
-                    catch (Exception)
-                    {
-                        return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
-                    }
-
+                    await serv.SaveSkillLevel(model, User.Identity.GetUserId());
+                    return new HttpStatusCodeResult(HttpStatusCode.OK);
                 }
-                else
+                catch (Exception)
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
                 }
+
             }
-            catch(Exception)
+            else
             {
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
             }

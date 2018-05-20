@@ -48,11 +48,11 @@ namespace SkillsBase.BLL.Services
             IEnumerable<EmployeeSkillDTO> userSkills = null;
 
             await Task.Run(() => {
-                userSkills = from d in domainUnitOfWork.Domain.GetAll()
+                (userSkills = from d in domainUnitOfWork.Domain.GetAll()
                 join s in domainUnitOfWork.Skill.GetAll() on d.Id equals s.DomainId
                 join u in domainUnitOfWork.UserProfileSkills.GetAll().Where(i => i.UserProfileID == userId).Select(r => new { UserProfileId = r.UserProfileID, r.SkillId, r.DomainId, r.SkillLevel }) on s.Id equals u.SkillId into t
                 from tr in t.DefaultIfEmpty(new { UserProfileId = userId, SkillId = 0, DomainId = 0, SkillLevel = 0 })
-                select new EmployeeSkillDTO { SkillName = s.Name, DomainName = d.Name, SkillId = s.Id, DomainId = s.DomainId, Level = (SkillLevel)tr.SkillLevel };
+                select new EmployeeSkillDTO { SkillName = s.Name, DomainName = d.Name, SkillId = s.Id, DomainId = s.DomainId, Level = (SkillLevel)tr.SkillLevel }).ToList();
             });
 
             if(userSkills == null)
@@ -81,7 +81,7 @@ namespace SkillsBase.BLL.Services
 
             await Task.Run(() =>
             {
-                employees = from u in employeeUnitOfWork.User.GetAll()
+                employees = (from u in employeeUnitOfWork.User.GetAll()
                             join s in employeeUnitOfWork.UserProfileSkills.GetAll().Where(s => s.SkillId == skillId).Select( x => new { x.DomainId, x.SkillId, x.SkillLevel, x.UserProfileID }) on u.Id equals s.UserProfileID into t
                             from tr in t.DefaultIfEmpty(new { DomainId = domainId, SkillId = skillId, SkillLevel = (int)SkillLevel.None, UserProfileID = u.Id })
                             where level.Contains((SkillLevel)tr.SkillLevel)
@@ -97,7 +97,7 @@ namespace SkillsBase.BLL.Services
                                     PhoneNumber = u.PhoneNumber != null ? u.PhoneNumber: "not set"
                                 },
                                 DomainId = tr.DomainId, SkillId = tr.SkillId, Level = (SkillLevel)tr.SkillLevel
-                            };
+                            }).ToList();
             });
 
             if (employees == null)
